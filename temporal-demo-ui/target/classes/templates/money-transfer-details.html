@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<html xmlns:th="https://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'home')}">
+
+<head>
+    <meta http-equiv="refresh" content="30" />
+</head>
+
+<body onload="refreshStatus()">
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <div class="col-md-12">
+                    <table class="table">
+                        <tr>
+                            <td>
+                                <h2 class="card-title" th:text="'Temporal Demonstrations : ' + ${appName}"
+                                    style="color:rgb(102, 179,73);">Temporal Demos : </h2>
+                            </td>
+                            <td style="text-align: rigt;">
+                                <h2><button id="transferSubmitBtn" type="button" onclick="newTransfer()">Submit new
+                                        transfer</button></h2>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <br>
+                <h3>Workflow <i><a th:text=${selectedWorkflow}></a></i> Details</h3>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table id="wfDetailsTable" class="table table-striped">
+                            <tr>
+                                <td>Transfer State</td>
+                                <td><a style="color:rgb(102, 179,73);" th:text="${moneyTransferState.transferState}"></a></td>
+                                <td>Workflow Status</td>
+                                <td><a id="workflowStatus" style="color:rgb(102, 179,73);" th:text="${moneyTransferState.workflowStatus}"></a></td>
+                            </tr>
+                            <tr>
+                                <td>Approval Time</td>
+                                <td><a style="color:rgb(102, 179,73);" th:text="${moneyTransferState.approvedTime} ?: 'None'"></a><a hidden="true"
+                                        id="approvalRequired" th:text="${moneyTransferState.approvalRequired}"></a></td>
+                                <td>Approval:</td>
+                                <td><button id="approveBtn" type="button" hidden onclick="approve()">Approve transferState</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Charge Identifier</td>
+                                <td><a style="color:rgb(102, 179,73);" th:text="${moneyTransferState.moneyTransferResponse.chargeId} ?: 'Not set'"></a>
+                                </td>
+                                <td>Withdrawal Identifier</td>
+                                <td><a style="color:rgb(102, 179,73);" 
+                                        th:text="${moneyTransferState.moneyTransferResponse.withdrawId} ?: 'Not set'"></a>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <label for="progress">Workflow progress:</label>
+                <progress class="progress-bar-striped" id="progress" th:value="${moneyTransferState.progressPercentage}"
+                    max="100" style="width:100%"></progress>
+                <br>
+                <hr>
+                <h3>Workflows from the last hour</h3>
+                <br>
+                <table id="workflows" class="table">
+                    <thead>
+                        <th>Workflow</th>
+                        <th></th>
+                        <th>Status</th>
+                        <th></th>
+                    </thead>
+                    <tbody>
+                        <tr th:each="workflow : ${workflows}">
+                            <td><a th:href="${workflow.url}" th:text="${workflow.workflowId}"></a></td>
+                            <td><a th:href="${workflow.url}"><img src="../static/resources/images/temporal-cloud-logo.png" th:src="@{/resources/images/temporal-cloud-logo.png}" style="width:160px;height:30px;"/></a></td>
+                            <td th:text="${workflow.workflowStatus}"></td>
+                            <td><a th:href="@{'/money-transfer-details?workflowID=' + ${workflow.workflowId}}"><img src="../static/resources/images/workflow-details.png" th:src="@{/resources/images/workflow-details.png}" style="width:160px;height:30px;"/></a></td>
+                        </tr>
+                    </tbody>
+
+                </table>
+                <div class="form-group">
+                    <br />
+                    <form action="http://localhost:8090/money-transfer" , id="moneytransferform">
+                    </form>
+                </div>
+            </div>
+            <div style="width: 18rem;">
+                <div>
+                    <h5 class="card-title"></h5>
+                    <br>
+                    <p><b>
+                            <div id="result"></div>
+                        </b></p>
+                    <br>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $("#moneytransferform").submit(function (event) {
+            event.preventDefault();
+
+            var $form = $(this),
+                firstName = $form.find("input[name='firstName']").val(),
+                lastName = $form.find("input[name='lastName']").val(),
+                url = $form.attr("action");
+
+            $.ajax({
+                'url': url,
+                'method': 'POST',
+                'dataType': 'json',
+                'contentType': 'application/json',
+                'data': JSON.stringify({
+                    "firstName": firstName,
+                    "lastName": lastName
+                }),
+                success: function (response) {
+                    $("#result").empty().append(response);
+                }
+            });
+        });
+
+        function refreshStatus() {
+            if ("[[${moneyTransferState.workflowStatus}]]" === "COMPLETED" ||  "[[${moneyTransferState.workflowStatus}]]" == "FAILED") 
+                console.log("Not refreshing screen any longer.  WF selected finished.");
+            else
+            {
+                console.log("The approvalRequired value is - [[${moneyTransferState.approvalRequired}]]");
+                if ("[[${moneyTransferState.approvalRequired}]]" == "true") {
+                    document.getElementById("approveBtn").removeAttribute("hidden");
+                }
+                else
+                    document.getElementById("approveBtn").setAttribute("hidden", true);
+
+                sleep(2000).then(() => {
+                    console.log("Slept for 2, now refreshing screen");
+                    location.reload();
+                });
+            }
+        } // End refreshStatus
+
+        // sleep time expects milliseconds
+        function sleep(time) {
+            return new Promise((resolve) => setTimeout(resolve, time));
+        }
+
+        function newTransfer() {
+            window.location.href = "/money-transfer-welcome";
+        }
+        function approve() {
+            url="/approveTransfer";
+            $.ajax({
+                'url': url,
+                'method': 'POST',
+                'dataType': 'json',
+                'contentType': 'application/json',
+                'data': JSON.stringify({
+                    "workflowId": "[[${moneyTransferState.workflowId}]]"
+                }),
+                success: function (response) {
+                    refreshStatus();
+                }
+            });
+        }
+
+    </script>
+
+</body>
+
+</html>

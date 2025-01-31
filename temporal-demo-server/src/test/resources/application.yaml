@@ -1,0 +1,8 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  temporal:
+    workersAutoDiscovery:
+      packages: com.donald.demo.temporaldemoserver
+    test-server:
+      enabled: true

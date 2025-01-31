@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+
+<html xmlns:th="https://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'home')}">
+
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title" th:text="'Temporal Demonstrations : ' + ${appName}"
+                    style="color:rgb(102, 179,73);">Temporal Demos : </h2>
+                <h6>In this demonstration we are doing the simple task of transfering money from one of your accounts to
+                    the selected destination account. The happy path processing will run a workflow to ensure the money
+                    transfer goes through.
+                    Alternative paths with approvals and simulated failures are possible.
+                </h6>
+                <div class="form-group">
+                    <br /><br /><br />
+                    <h5>Select the transfer details and amount.</h5>
+                    <form action="http://localhost:8090/money-transfer" , id="moneytransferform">
+                        <table id="accounts" class="table">
+                            <tr>
+                                <td><label for="fromAccount">From Account:</label></td>
+                                <td><select id="fromAccount" name="fromAccount">
+                                        <option value="savings">Savings</option>
+                                        <option value="current">Current</option>
+                                    </select></td>
+                            <tr>
+                                <td><label for="toAccount">To Account:</label></td>
+                                <td><select id="toAccount" name="toAccount">
+                                    <option th:each="account : ${accounts}" 
+                                            th:value="'{ firstName:' + ${account.firstName} + ', lastName:' + ${account.lastName} + ', sortCode: ' + ${account.sortCode} + ', accountNumber: ' + ${account.accountId} +'}'"    
+                                            th:text="${account.firstName} + ' ' + ${account.lastName}">
+                                    </option>
+                                </select></td>
+                            </tr>
+                            <tr>
+                                <td> <p>Amount:</p></td>
+                                <td><input id="amount" type="number" name="amount" value="10"/></td>
+                            </tr>
+                            <tr>
+                                <td><label for="workflowOptions">Workflow Options</label></td>
+                                <td><select id="workflowOptions" name="workflowOptions">
+                                    <option th:each="option : ${options}" th:value="${option.option}"
+                                        th:text="${option.optionDescription}"></option>
+                                    </option>
+                                </select></td>
+                            </tr>
+                        </table>
+                        <br>
+                        
+                         <p>
+                            <div style="text-align:center">
+                            <input type="submit" value="Transfer Money" class="btn btn-primary" />
+                            </div>
+                        </p>
+                    </form>
+                </div>
+            </div>
+            <div style="width: 18rem;">
+                <div>
+                    <h5 class="card-title"></h5>
+                    <br>
+                    <p><b>
+                            <div id="result"></div>
+                        </b></p>
+                    <br>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $("#moneytransferform").submit(function (event) {
+            event.preventDefault();
+
+            var $form = $(this),
+                fromAccount = $form.find("select[name='fromAccount']").val(),
+                toAccount = $form.find("select[name='toAccount']").val(),
+                amount = $form.find("input[name='amount']").val(),
+                workflowOption = $form.find("select[name='workflowOptions']").val(),
+                url = $form.attr("action");
+            var element = document.getElementById("toAccount");
+
+            $.ajax({
+                'url': url,
+                'method': 'POST',
+                'dataType': 'json',
+                'contentType': 'application/json',
+                'data': JSON.stringify({
+                    "fromAccount": fromAccount,
+                    "toAccountAsString": toAccount,
+                    "amount": amount,
+                    "workflowOption": workflowOption
+
+                }),
+                success: function (response) {
+                    $("#result").empty().append(response);
+                    window.location.assign(window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + response);
+                }
+            });
+        });
+
+    </script>
+
+</body>
+
+</html>

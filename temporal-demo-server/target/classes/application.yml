@@ -1,0 +1,81 @@
+server:
+   address: 0.0.0.0
+   port: 8090
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus,temporalworkerinfo
+
+cloud-operations-service:
+  host: localhost
+  port: 8091
+  protocol: http
+
+spring:
+  application:
+    name: Temporal Server Demonstration
+
+  temporal:
+    namespace: donald-demo.sdvdw
+    workersAutoDiscovery:
+      packages: 
+        - com.donald.demo.temporaldemoserver
+    connection:
+      target: donald-demo.sdvdw.tmprl.cloud:7233
+      mtls:
+        key-file: /Users/donald/stuff/source/certificates/temporal-client.key
+        cert-chain-file: /Users/donald/stuff/source/certificates/temporal-client-leaf.pem
+    # (Note following configuration are not set by default but serve more as reference)
+    workers:
+      - name: HelloDemoWorker
+        task-queue: HelloDemoTaskQueue     
+        workflow-classes:
+          - com.donald.demo.temporaldemoserver.hello.HelloWorkflowImpl
+        activity-beans:
+          - helloActivityImpl
+        capacity:
+          max-concurrent-workflow-task-pollers: 15
+          max-concurrent-activity-task-pollers: 15
+        rate-limits:                                   #  server side rate limiting
+          max-worker-activities-per-second: 60
+          max-task-queue-activities-per-second: 60
+
+      - task-queue: TransferMoneyDemoTaskQueue
+        name: TransferDemoWorker
+        workflow-classes:
+          - com.donald.demo.temporaldemoserver.transfermoney.TransferMoneyWorkflowImpl
+
+      - name: TransferMoneyActivityWorker
+        task-queue: TransferMoneyDemoActivityTaskQueue
+        activity-beans:
+          - accountTransferActivitiesImpl
+
+
+      - name: OpsWFDemoWorker
+        task-queue: ManageNamespaceTaskQueue
+        workflow-classes:
+          - com.donald.demo.temporaldemoserver.namespace.workflows.ManageNamespaceImpl
+          - com.donald.demo.temporaldemoserver.namespace.workflows.DeleteNamespaceImpl
+          - com.donald.demo.temporaldemoserver.namespace.workflows.ScheduleNamesapceCertRotationImpl
+#        activity-beans:
+#          - certificateManagementImpl
+#          - namespaceManagementImpl
+
+
+      - name: OpsActivityDemoWorker
+        task-queue: ManageNamespaceActivityTaskQueue
+        activity-beans:
+          - certificateManagementImpl
+          - namespaceManagementImpl
+
+#      - task-queue: ManageNamespaceActivityTaskQueue
+#        name: OpsActivityDemoWorker    
+#        activity-beans:
+#          - com.donald.demo.temporaldemoserver.namespace.activities.CertificateManagementImpl
+
+    workflow-cache:  
+      max-instances: 100
+      max-threads: 100
+
