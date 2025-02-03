@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.donald.demo.temporaldemoserver.TemporalServerDemonstrationApplicationTests
--------------------------------------------------------------------------------
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.661 s -- in com.donald.demo.temporaldemoserver.TemporalServerDemonstrationApplicationTests
