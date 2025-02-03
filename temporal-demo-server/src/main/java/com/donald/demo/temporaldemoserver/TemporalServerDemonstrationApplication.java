@@ -1,5 +1,6 @@
 package com.donald.demo.temporaldemoserver;
 
+import com.donald.demo.customize.TemporalOptionsConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -8,11 +9,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 import com.donald.demo.temporaldemoserver.namespace.model.CloudOperationsServerConfig;
-
-
+import org.springframework.context.annotation.Import;
 
 
 @SpringBootApplication
+@Import(TemporalOptionsConfig.class)
 public class TemporalServerDemonstrationApplication {
 	
 	public static void main(String[] args) {

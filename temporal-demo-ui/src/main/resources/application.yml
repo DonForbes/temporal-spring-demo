@@ -6,7 +6,7 @@ spring:
     namespace: donald-demo.sdvdw
     workersAutoDiscovery:
       packages: 
-        - com.donald.demo.ui
+        - com.donald.demo
     connection:
       target: donald-demo.sdvdw.tmprl.cloud:7233
       mtls:
