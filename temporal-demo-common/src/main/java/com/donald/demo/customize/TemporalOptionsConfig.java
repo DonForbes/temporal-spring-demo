@@ -90,6 +90,7 @@ public class TemporalOptionsConfig {
           @Nonnull WorkerFactoryOptions.Builder optionsBuilder) {
         // set options on optionsBuilder as needed
         // ...
+
         return optionsBuilder;
       }
     };

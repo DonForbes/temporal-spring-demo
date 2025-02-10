@@ -41,6 +41,9 @@ spring:
         rate-limits:                                   #  server side rate limiting
           max-worker-activities-per-second: 60
           max-task-queue-activities-per-second: 60
+        build-id:
+          worker-build-id: "@project.version@"
+          enabled-worker-versioning: true
 
       - task-queue: TransferMoneyDemoTaskQueue
         name: TransferDemoWorker

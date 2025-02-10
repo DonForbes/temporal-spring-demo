@@ -3,6 +3,7 @@ package com.donald.demo.temporaldemoserver.hello;
 import java.time.Duration;
 import java.util.Optional;
 
+import io.temporal.common.VersioningIntent;
 import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -21,12 +22,12 @@ import io.temporal.spring.boot.autoconfigure.properties.WorkerProperties;
 import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInterface;
 
-
-@WorkflowImpl(taskQueues = "HelloDemoTaskQueue")
+@Component
+@WorkflowImpl
 public class HelloWorkflowImpl implements HelloWorkflow, ApplicationContextAware {
 
     public static final Logger logger = Workflow.getLogger(HelloWorkflowImpl.class);
-    private ApplicationContext ctx;
+    private static ApplicationContext ctx;
 //    private HelloActivity activity =
 //       Workflow.newActivityStub(
 //        HelloActivity.class,
@@ -35,15 +36,17 @@ public class HelloWorkflowImpl implements HelloWorkflow, ApplicationContextAware
     @Override
     public String sayHello(Person person) {
 
-        TemporalProperties props = ctx.getBean(TemporalProperties.class);
+        TemporalProperties props = HelloWorkflowImpl.getApplicationContext().getBean(TemporalProperties.class);
         Optional<WorkerProperties> wp =
               props.getWorkers().stream().filter(w -> w.getName().equals("HelloDemoWorker")).findFirst();
         String taskQueue = wp.get().getTaskQueue();
+        logger.info("Task Queue used for activity [{}]",taskQueue);
         HelloActivity activity = Workflow.newActivityStub(
             HelloActivity.class,
             ActivityOptions.newBuilder()
                              .setStartToCloseTimeout(Duration.ofSeconds(5))
                              .setTaskQueue(taskQueue)
+                             .setVersioningIntent(VersioningIntent.VERSIONING_INTENT_COMPATIBLE)
                              .build());
 
         logger.info(person.toString());
@@ -56,6 +59,9 @@ public class HelloWorkflowImpl implements HelloWorkflow, ApplicationContextAware
     }
 
 
+    public static ApplicationContext getApplicationContext() {
+        return ctx;
+    }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
