@@ -72,8 +72,7 @@ public class TemporalOptionsConfig {
         optionsBuilder.setDataConverter(
             new CodecDataConverter(
                 DefaultDataConverter.newDefaultInstance(), 
-                Collections.singletonList(new CryptCodec()),
-                true ) 
+                Collections.singletonList(new CryptCodec()), true)
             );
         return optionsBuilder;
       }

@@ -2,7 +2,11 @@ package com.donald.demo.temporaldemoserver;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
+import com.uber.m3.util.ImmutableMap;
+import org.checkerframework.checker.units.qual.K;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +59,7 @@ public class TemporalServerDemoRESTController {
         WorkflowOptions.newBuilder()
             .setTaskQueue("HelloDemoTaskQueue")
             .setWorkflowId("HelloDemo" + timeStamp)
+            .setMemo(ImmutableMap.of("memoKey", "MemoValue"))
           //  .setStartDelay(Duration.ofHours(1)) 
             .build());
 

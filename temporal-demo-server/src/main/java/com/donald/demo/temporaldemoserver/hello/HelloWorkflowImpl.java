@@ -35,7 +35,7 @@ public class HelloWorkflowImpl implements HelloWorkflow, ApplicationContextAware
 
     @Override
     public String sayHello(Person person) {
-
+        logger.info("The duration of the workflow execution timeout is [{}]", Workflow.getInfo().getWorkflowExecutionTimeout().toString());
         TemporalProperties props = HelloWorkflowImpl.getApplicationContext().getBean(TemporalProperties.class);
         Optional<WorkerProperties> wp =
               props.getWorkers().stream().filter(w -> w.getName().equals("HelloDemoWorker")).findFirst();

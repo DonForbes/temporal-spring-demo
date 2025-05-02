@@ -19,7 +19,8 @@ public class HelloActivityImpl implements HelloActivity {
             // TODO Auto-generated catch block
             e.printStackTrace();
         } // Sleeping the thread for a second to simulate a real external call.
-        return "Hi " + person.getFirstName() + " " + person.getLastName();
+        String rtnString = "Hi " + person.getFirstName() + " " + person.getLastName();
+        return rtnString;
     }
     
 }

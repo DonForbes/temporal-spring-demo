@@ -12,6 +12,10 @@ import io.temporal.spring.boot.ActivityImpl;
 import io.temporal.activity.Activity;
 import io.temporal.activity.ActivityInfo;
 
+import java.util.Random;
+
+import static java.util.Random.*;
+
 
 //@ActivityImpl(taskQueues = "TransferMoneyDemoTaskQueue")
 @Component  
@@ -21,12 +25,12 @@ public class AccountTransferActivitiesImpl implements AccountTransferActivities 
 
     @Override
     public Boolean validate(MoneyTransfer moneyTransfer) {
-
+        pauseOrFail(500);
         if (moneyTransfer.getWorkflowOption().equals(ExecutionScenario.BUG_IN_WORKFLOW))
             {
                 // Doing something stupid.
                 // Calculating the amount as a fraction of 100000
-                int quantity = 0000;  //  Oops, should be 10000
+                int quantity = 10000;  //  Oops, should be 10000
                 int percentage = 100 * Integer.parseInt(moneyTransfer.getAmount()) / quantity;
                 log.debug("The percentage is " + percentage);
             }
@@ -50,13 +54,7 @@ public class AccountTransferActivitiesImpl implements AccountTransferActivities 
             else 
                 log.debug("Tried 5 times so simply continuing activity now which will complete successfully.");
         }
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        pauseOrFail(1000);
         return true;
     }
 
@@ -64,6 +62,15 @@ public class AccountTransferActivitiesImpl implements AccountTransferActivities 
     @Override
     public boolean undoWithdraw(MoneyTransfer moneyTransfer) {
         log.debug("Reverting withdrawal for [" + moneyTransfer.toString() + "]");
+        pauseOrFail(1000);
+        return true;
+    }
+
+    @Override
+    public boolean sendNotification(MoneyTransfer moneyTransfer) {
+        log.info("Notification sent to account holder of transfer");
+        pauseOrFail(1000);
+
         return true;
     }
 
@@ -71,13 +78,8 @@ public class AccountTransferActivitiesImpl implements AccountTransferActivities 
     public boolean deposit(MoneyTransfer moneyTransfer) {
         
         log.debug("Deposit for input details of [" + moneyTransfer.toString() + "]");
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return false;
-        }
+        pauseOrFail(1001);
+
         if (moneyTransfer.getWorkflowOption() == ExecutionScenario.FAIL_DEPOSIT)
             {
                 log.debug("Scenario is to fail the deposit, meaning we will have to revert the withdrawal)");
@@ -89,15 +91,25 @@ public class AccountTransferActivitiesImpl implements AccountTransferActivities 
     @Override
     public boolean compensate(MoneyTransfer moneyTransfer) {
         log.debug("Applying compensation transaction.");
+        pauseOrFail(1000);
+        return true;
+    }
+
+    private void pauseOrFail(int duration) throws ApplicationFailure
+    {
+        // Add in a random error once every 4 times this is called.
+        Random random = new Random();
+        if (random.nextInt(4) == 3)
+            throw ApplicationFailure.newFailure("Exception raised randomly (1 in 4)", "Transient failure");
+
+        if (duration == 0)
+            duration = 1000;
 
         try {
-            Thread.sleep(1000);  //Brief snooze to 
+            Thread.sleep(duration);  //Brief snooze to
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
-        return true;
     }
-
 }

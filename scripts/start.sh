@@ -75,7 +75,7 @@ function set_assignment_rule_to_current_version() {
 # Main running program
 # *******************************************************************************
 #
-source $(dirname $(realpath $0))/.env
+source $(dirname $(realpath $0))/.env donald-demo
 validation
 set_location_of_main_pom
 

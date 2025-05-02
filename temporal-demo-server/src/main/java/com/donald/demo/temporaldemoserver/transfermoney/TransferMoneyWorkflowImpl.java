@@ -1,10 +1,14 @@
 package com.donald.demo.temporaldemoserver.transfermoney;
 
+import io.temporal.workflow.Async;
+import io.temporal.workflow.Promise;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -116,7 +120,19 @@ public class TransferMoneyWorkflowImpl implements TransferMoneyWorkflow, Applica
 
         moneyTransferState.setProgressPercentage(70);
 
-        Workflow.sleep(Duration.ofSeconds(3));
+        Workflow.sleep(Duration.ofSeconds(2));
+
+        // *****************************
+        // ***      Notification     ***
+        // *****************************
+        List<Promise<Boolean>> promiseNotifictions = new ArrayList<>();
+        for (int i = 0; i < 3; i++)
+            promiseNotifictions.add(Async.function(activity::sendNotification, moneyTransfer));
+
+        Promise.allOf(promiseNotifictions).get();
+        moneyTransferState.setProgressPercentage(80);
+
+        Workflow.sleep(Duration.ofSeconds(2));
 
         moneyTransferState.setProgressPercentage(100);
         if (moneyTransferState.getTransferState().toString().contains("FAIL"))
