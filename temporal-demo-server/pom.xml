@@ -63,13 +63,13 @@
 		<dependency>
 			<groupId>io.temporal</groupId>
 			<artifactId>temporal-sdk</artifactId>
-			<version>1.27.1</version>
+			<version>1.29.0</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>io.temporal</groupId>
 			<artifactId>temporal-spring-boot-starter</artifactId>
-			<version>1.27.1</version>
+			<version>1.29.0</version>
 			<optional>true</optional>
 		</dependency>
  </dependencies>
