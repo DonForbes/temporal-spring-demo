@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.time.Duration;
 import com.uber.m3.util.ImmutableMap;
 import org.checkerframework.checker.units.qual.K;
 import org.slf4j.Logger;
@@ -54,13 +55,16 @@ public class TemporalServerDemoRESTController {
 
     this.registerWorker("HelloDemoTaskQueue", HelloWorkflowImpl.class);
 
+    long delaySeconds = 1;
+    logger.debug("Start delay of [{}] seconds", delaySeconds);
+
     HelloWorkflow workflow = client.newWorkflowStub(
         HelloWorkflow.class,
         WorkflowOptions.newBuilder()
             .setTaskQueue("HelloDemoTaskQueue")
             .setWorkflowId("HelloDemo" + timeStamp)
             .setMemo(ImmutableMap.of("memoKey", "MemoValue"))
-          //  .setStartDelay(Duration.ofHours(1)) 
+            .setStartDelay(Duration.ofSeconds(delaySeconds))
             .build());
 
     return new ResponseEntity<>("\"" + workflow.sayHello(person) + "\"", HttpStatus.OK);

@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MoneyTransferState {
 
-    private int approvalTime = 300;
+    private int approvalTime = 90;
     private String approvedTime = "";
     private boolean approvalRequired = false;
     private int progressPercentage = 0;

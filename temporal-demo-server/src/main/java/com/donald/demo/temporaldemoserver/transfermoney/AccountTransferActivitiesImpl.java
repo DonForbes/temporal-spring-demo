@@ -30,7 +30,7 @@ public class AccountTransferActivitiesImpl implements AccountTransferActivities 
             {
                 // Doing something stupid.
                 // Calculating the amount as a fraction of 100000
-                int quantity = 10000;  //  Oops, should be 10000
+                int quantity = 0000;  //  Oops, should be 10000
                 int percentage = 100 * Integer.parseInt(moneyTransfer.getAmount()) / quantity;
                 log.debug("The percentage is " + percentage);
             }
