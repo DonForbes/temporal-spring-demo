@@ -1,5 +1,10 @@
 package com.donald.demo.temporaldemoserver;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -7,10 +12,13 @@ import java.util.Map;
 
 import java.time.Duration;
 import com.uber.m3.util.ImmutableMap;
+import io.micrometer.core.instrument.util.IOUtils;
 import org.checkerframework.checker.units.qual.K;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -92,6 +100,7 @@ public class TemporalServerDemoRESTController {
             .setTaskQueue("TransferMoneyDemoTaskQueue")
             .setWorkflowId(workflowID)
             .setTypedSearchAttributes(searchAttribs)
+            .setStaticSummary(this.getWorkflowSummary())
             .build());
 
         
@@ -117,4 +126,20 @@ public class TemporalServerDemoRESTController {
       worker.registerWorkflowImplementationTypes(registerWorkflowClass);
       factory.start();
   }
+
+  private String getWorkflowSummary() {
+
+      try {
+          Resource resource = new ClassPathResource("static/money-transfer-workflow.md");
+          InputStream wfDetailsStream = new FileInputStream(resource.getFile());
+          return IOUtils.toString(wfDetailsStream, StandardCharsets.UTF_8);
+      } catch (FileNotFoundException e) {
+          logger.info(e.getMessage());
+          return "No details on the workflow found.";
+      } catch (IOException e) {
+          logger.info(e.getMessage());
+          return "No details on the workflow found - failed to load";
+      }
+
+  } // End getWorkflowSummary
 }
